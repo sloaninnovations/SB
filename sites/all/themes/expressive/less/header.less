@@ -1,0 +1,200 @@
+// Breadcrumbs
+#breadcrumbs {
+  background: @grayDark;
+  padding: 0 10px;
+  .breadcrumb {
+    background: transparent;
+    margin: 0;
+    padding: 6px 0 8px;
+    li {
+      margin: 0;
+      text-shadow: none;
+      &, a {
+        color: @grayLighter;
+        line-height: 1em;
+      }
+      a:hover, a:active {
+        color: @white;
+        text-decoration: none;
+      }
+      .divider {
+        color: @gray;
+      }
+    }
+  }
+}
+#header {
+  .box-sizing(border-box);
+  background: @grayDarker;
+  position: relative;
+  z-index: 146;
+  #logo img {
+    margin-top: 1.5em;
+  }
+  @media @mobile {
+    border-top-width: 5px;
+    margin-bottom: 0;
+    padding: 10px;
+    #logo {
+      float: left;
+      width: auto;
+      img {
+        margin: 3px 0 0;
+        height: 23px;
+        width: auto;
+      }
+    }
+    .mobile-menu {
+      float: right;
+      width: auto;
+      .toggle {
+      }
+    }
+  }
+  #menu {
+    margin: 0;
+    @media @mobile {
+      display: none;
+      min-height: 0;
+    }
+    @media @tablet, @normal, @wide {
+      display: block !important; // Ensure that the menu is always shown.
+    }
+    .block {
+      margin: 0;
+    }
+    & > ul.menu.nav,
+    & > .block .menu-block-wrapper > ul.menu {
+      margin: 0;
+      text-align: right;
+      @media @mobile {
+        .inline-block();
+        float: left;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%;
+      }
+      // Top Level Links
+      & > li {
+        .inline-block();
+        margin: 0;
+        position: relative;
+        @media @mobile {
+          float: left;
+          margin-right: 1%;
+          width: 49%;
+          &:nth-child(2n) {
+            margin-left: 1%;
+            margin-right: 0;
+          }
+        }
+        a {
+          border: 0 none;
+          color: @grayLight;
+        	display: block;
+          font-family: @sansFontFamily;
+          .font-size(1.2);
+          font-weight: 400;
+          text-align: left;
+        	text-decoration: none;
+          text-transform: none;
+          .transition(all 0.1s ease);
+          &:hover {
+            color: @white;
+          }
+        }
+        & > a {
+          border-top: 3px solid transparent;
+          color: @grayLight;
+          font-family: @headingsFontFamily;
+        	font-weight: 700;
+        	margin: 0 -5px 0 0; 
+        	padding: 20px 18px 23px;
+        	text-decoration: none;
+        	text-transform: uppercase;
+          &:active {
+            background: inherit;
+          }
+          @media @mobile {
+            background: @grayLighter;
+            .border-radius(5px);
+            border: 0 none;
+            .font-size(1.6);
+            font-weight: 500;
+            margin: 0 0 4%;
+            padding: 7px 0;
+            &:hover {
+              background: @blue;
+              color: @white;
+            }
+          }
+        }
+        &.active > a, &.active-trail > a, & > a.active, &:hover > a, &.hover > a, & > a:focus {
+          background: @grayDark;
+          border-color: @styleColor1;
+          color: @white;
+          position: relative;
+          z-index: 501;
+          .transition(all 0.2s ease 0s);
+        }
+        @media @mobile {
+          &:nth-child(5) a, &:nth-child(6) a {
+            margin-bottom: 0;
+          }
+        }
+        // Sub-menus
+        & > ul {
+        	background: @grayDark;
+          .box-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+          height: 0;
+        	left: 0;
+          margin: 0;
+          .opacity(0);
+          overflow: hidden;
+          padding: 0;
+        	position: absolute;
+          .transition(all 0.2s ease);
+          top: 100%;
+        	width: 200px;
+        	z-index: 500;
+          li {
+            margin: 0;
+            padding: 0;
+          }
+          a {
+          	border-bottom: 1px solid fadeout(@grayLight, 75%);
+            border-top: 1px solid transparent;
+            color: @white;
+            margin-top: -1px;
+          	padding: 8px 15px;
+          	width: 170px;
+          }
+          li.last a, li:last-child a {
+            border-bottom-color: transparent;
+          }
+          li.active a, li.active-trail a, li:hover a, li.hover a {
+            background: @styleColor1;
+            border-color: @styleColor1;
+          }
+        }
+        &:hover > ul, &.hover > ul {
+          .opacity(100);
+          height: auto;
+          top: 100%;
+        }
+      }
+    }
+  }
+}
+#content-header {
+  background: #F7F7F7;
+  border-bottom: 1px solid #D7D7D7;
+  margin: 0 0 20px;
+  padding: 15px 10px 10px;
+  h1.page-title {
+    font-weight: 400;
+    line-height: 1.25em;
+    margin: 0;
+    padding: 0;
+  }
+}

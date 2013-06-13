@@ -1,0 +1,38 @@
+// Colors
+@styleColor1: @blue; // @green;
+@styleColor2: @grayDark; // @gray;
+@styleColor3: @gray; // @blue;
+@styleColor4: @grayDarker; // @orange;
+@styleColor5: @grayLight;
+
+// @media Query Mixin Variables
+@mobile:  ~"(max-width: 767px)";
+@tablet:  ~"(min-width: 768px) and (max-width: 979px)";
+@normal:  ~"(min-width: 980px) and (max-width: 1199px)";
+@wide:    ~"(min-width: 1200px)";
+
+@import 'bootstrap.less';
+@import 'responsive.less';
+
+@import 'mixins.less';
+
+@import 'overrides.less';
+
+@import 'drupal.less';
+@import 'featured.less';
+@import 'header.less';
+@import 'content.less';
+@import 'footer.less';
+
+// Styles
+@import 'styles.less';
+@import 'styles/bios.less';
+@import 'styles/ds.less';
+@import 'styles/blog.less';
+@import 'styles/event.less';
+@import 'styles/news.less';
+@import 'styles/press.less';
+@import 'styles/services.less';
+@import 'styles/slideshow.less';
+@import 'styles/social.less';
+@import 'styles/user.less';

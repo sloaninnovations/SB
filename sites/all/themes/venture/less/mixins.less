@@ -1,0 +1,51 @@
+@mobile: ~"all and (max-width: 767px)";
+@tablet: ~"all and (min-width: 768px) and (max-width: 979px)";
+@ipadLandscape: ~"only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) ";
+@ipadPortrait: ~"only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) ";
+@normal: ~"all and (min-width: 980px) and (max-width: 1199px)";
+@wide: ~"all and (min-width: 1200px)";
+
+.absolute-link() {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  overflow: hidden;
+  right: 0;
+  text-indent: -9999px;
+  top: 0;
+  z-index: 1;
+}
+
+.inline-block() {
+  display: inline-block;
+  *display: inline; // IE 7
+  *zoom: 1; // IE 7
+}
+
+.type-inherit() {
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.list-reset() {
+  &, li, & ul {
+    list-style: none;
+    list-style-image: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// retina.less
+// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
+
+.at2x(@path, @w: auto, @h: auto) {
+  background-image: url(@path);
+  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
+
+  @media all and (-webkit-min-device-pixel-ratio : 1.5) {
+    background-image: url(@at2x_path);
+    background-size: @w @h;
+  }  
+}

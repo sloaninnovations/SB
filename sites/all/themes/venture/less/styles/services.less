@@ -1,0 +1,68 @@
+// Services
+.style-services {
+  .box-sizing(border-box);
+  color: @gray;
+  padding: 30px;
+  position: relative;
+  text-align: center;
+  @media @mobile, @tablet {
+    clear: both;
+    margin: 0 !important;
+    padding: 0 0 10px;
+    text-align: left;
+    width: 100% !important;
+  }
+  .icon:not(.fontello), .icon.fontello:before {
+    background: @styleColor1;
+    .border-radius(100%);
+    color: @white;
+    .inline-block();
+    .font-size(7);
+    padding: 0.25em;
+    text-align: center;
+    .transition(all 0.2s ease 0s);
+    &.pull-left {
+      margin: 20px 20px 20px 0;
+    }
+    @media @mobile, @tablet {
+      .font-size(5);
+      line-height: 1.5em;
+      float: left;
+      height: 75px;
+      margin: 0 20px 20px 0;
+      width: 75px;
+    }
+  } 
+  .content {
+    overflow: hidden;
+  }
+  .title {
+    font-family: @altFontFamily;
+    .font-size(1.8);
+    font-weight: 600;
+    line-height: 1em;
+    margin: 15px 0;
+    @media @mobile, @tablet {
+      margin-top: 0;
+    }
+  }
+  .teaser {
+    font-family: @altFontFamily;
+    .font-size(1.6);
+  }
+  .more-link {
+    .absolute-link();
+  }
+  &:hover, &.hover {
+    .icon:not(.fontello), .icon.fontello:before {
+      background: darken(@styleColor1, 10%);
+    }
+  }
+}
+.style-services-left {
+  .style-services;
+  text-align: left;
+  .title {
+    margin-top: 0;
+  }
+}
