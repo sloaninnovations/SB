@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Enterprise Presentation feature.
+ */
+
+include_once 'enterprise_presentation.features.inc';

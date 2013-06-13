@@ -1,0 +1,238 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function enterprise_social_ds_fields_info($entity_type) {
+  $node = array();
+  $node['social_media_share_buttons'] = array(
+    'title' => t('Social Media Share Buttons'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'ui_limit' => array('*|*'),
+    'function' => 'enterprise_social_share_field',
+    'properties' => array(),
+  );
+  return array('node' => $node);
+}
+
+/**
+ * Implements hook_icon_bundles().
+ */
+function enterprise_social_icon_bundles() {
+  $bundles['enterprise_social'] = array(
+    'render' => 'sprite',
+    'title' => t('Social Media'),
+    'provider' => 'fontello',
+    'path' => drupal_get_path('module', 'enterprise_social'),
+    'icons' => array(
+      'social-youtube' => t('YouTube'),
+      'social-drupal' => t('Drupal'),
+      'social-mail' => t('E-mail'),
+      'social-location' => t('Location'),
+      'social-share' => t('Share'),
+      'social-comments' => t('Comments'),
+      'social-twitter' => t('Twitter'),
+      'social-facebook' => t('Facebook'),
+      'social-github' => t('GitHub'),
+      'social-gplus' => t('Google+'),
+      'social-linkedin' => t('LinkedIn'),
+      'social-flickr' => t('Flickr'),
+      'social-vimeo' => t('Vimeo'),
+      'social-pinterest' => t('Pinterest'),
+      'social-tumblr' => t('Tumblr'),
+      'social-instagram' => t('Instagram'),
+      'social-dropbox' => t('Dropbox'),
+      'social-skype' => t('Skype'),
+      'social-picasa' => t('Picasa'),
+      'social-calendar' => t('Calendar'),
+      'social-mobile' => t('Mobile'),
+      'social-link' => t('Link'),
+    ),
+    'settings' => array(
+      'animation' => 0,
+      'filename_prefix' => 'enterprise_social',
+      'ie7' => 1,
+      'method' => 'embedded',
+      'tag' => 'i',
+    ),
+    '#attached' => array(
+      'fontello_process_attached' => array(array('enterprise_social')),
+    ),
+  );
+  return $bundles;
+}
+
+/**
+ * Field callback for media share field.
+ * 
+ * @param type $variables
+ * @return string
+ */
+function enterprise_social_share_field($variables) {
+  $entity = $variables['entity'];
+  // Settings
+  $pubid = variable_get('enterprise_social_pubid', ''); //AddThis ID
+  if (empty($pubid) && $pubid !== FALSE) {
+    drupal_set_message(t('The %pubid variable has not been set. Please set this variable to the AddThis ID to enable share tracking. Set to FALSE to disable.', array(
+      '%pubid' => '$conf[\'enterprise_social_pubid\']'
+    )), 'warning');
+  }
+  if (!empty($pubid)) {
+    $pubid = 'pubid=' . $pubid;
+  }
+  $services = array(
+    'facebook' => 'facebook',
+    'twitter' => 'twitter',
+    'google_plusone_share' => 'gplus',
+    'linkedin' => 'linkedin',
+    'pinterest' => 'pinterest',
+  );
+  // Render the content.
+  $output = '<section class="style-social-media">';
+  $output .= '  <div class="addthis_toolbox addthis_default_style">';
+  $output .= '    <div class="counter">' . theme('icon', array('bundle' => 'enterprise_social', 'icon' => 'social-share')) . '<a class="addthis_counter addthis_bubble_style"></a></div>';
+  $output .= '  </div>';
+  $output .= '  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#' . $pubid . '"></script>';
+  foreach ($services as $service => $icon_name) {
+    $query = array(
+      'url' => $_SERVER['HTTP_HOST'] . request_uri(),
+    );
+    if (!empty($pubid)) {
+      $query['pubid'] = $pubid;
+    }
+    $output .= '  ' . l(theme('icon', array('bundle' => 'enterprise_social', 'icon' => 'social-' . $icon_name)), '//api.addthis.com/oexchange/0.8/forward/' . $service . '/offer', array(
+      'external' => TRUE,
+      'query' => $query,
+      'html' => TRUE,
+      'attributes' => array(
+        'onclick' => "javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=500,width=1200');return false;",
+      ),
+    ));
+  }
+  $output .= '</section>';
+  return $output;
+}
+
+/**
+ * Implementation of hook_block_info()
+ */
+function enterprise_social_block_info() {
+    $blocks['enterprise_social_twitter'] = array(
+      'info' => t('Latest Tweets'),
+    );
+    $blocks['enterprise_social_flickr'] = array(
+      'info' => t('Latest Flickr'),
+    );
+    return $blocks;
+}
+
+/**
+ * Implementation of hook_block_configure()
+ */
+function enterprise_social_block_configure($delta = '') {
+  $form = array();
+  switch ($delta) {
+    case 'enterprise_social_twitter':
+      $form['enterprise_social_twitter_account'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Twitter account'),
+        '#field_prefix' => '@',
+        '#default_value' => variable_get('enterprise_social_twitter_account', 'LevelTen'),
+        '#description' => t('Eg: tabvn')
+      );
+      $form['enterprise_social_twitter_tweets_count'] = array(
+        '#type' => 'select',
+        '#title' => t('Number of tweets'),
+        '#description' => t('Choose the number of recent tweets to display.'),
+        '#default_value' => variable_get('enterprise_social_twitter_tweets_count', 3),
+        '#options' => drupal_map_assoc(array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30)),
+      );
+      break;
+    case 'enterprise_social_flickr':
+      $form['enterprise_social_flickr_id'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Flickr ID'),
+        '#default_value' => variable_get('enterprise_social_flickr_id', '77715973@N03'),
+        '#description' => t('Eg: 77715973@N03 or user name'),
+      );
+      $form['enterprise_social_flickr_photo_count'] = array(
+        '#type' => 'select',
+        '#title' => t('Number of photos'),
+        '#description' => t('Choose the number of recent photos to display.'),
+        '#default_value' => variable_get('enterprise_social_flickr_photo_count', 6),
+        '#options' => drupal_map_assoc(array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30)),
+      );
+      $form['enterprise_social_flickr_display'] = array(
+        '#type' => 'select',
+        '#title' => t('Display type'),
+        '#description' => t('Choose the type of images to display.'),
+        '#default_value' => variable_get('enterprise_social_flickr_display', 'latest'),
+        '#options' => drupal_map_assoc(array('latest', 'random')),
+      );
+      break;
+  }
+  return $form;
+}
+
+/**
+ * Implementation of hook_block_save()
+ */
+function enterprise_social_block_save($delta = '', $edit = array()) {
+  switch ($delta) {
+    case 'enterprise_social_twitter':
+      variable_set('enterprise_social_twitter_account', $edit['enterprise_social_twitter_account']);
+      variable_set('enterprise_social_twitter_tweets_count', $edit['enterprise_social_twitter_tweets_count']);
+      break;
+    case 'enterprise_social_flickr':
+      variable_set('enterprise_social_flickr_id', $edit['enterprise_social_flickr_id']);
+      variable_set('enterprise_social_flickr_photo_count', $edit['enterprise_social_flickr_photo_count']);
+      variable_set('enterprise_social_flickr_display', $edit['enterprise_social_flickr_display']);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_block_view()
+ */
+function enterprise_social_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'enterprise_social_twitter':
+      if (!$twitter_account = variable_get('enterprise_social_twitter_account', 'LevelTen')) {
+        return;
+      }
+      $tweets_count = variable_get('enterprise_social_twitter_tweets_count', 2);
+      $block['title'] = t('Latest Tweets');
+      $block['content'] = array(
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'enterprise_social') . '/js/twitter.js',
+          ),
+        ),
+        '#markup' => '<ul id="social-twitter-list"><li>' . theme('icon', array('bundle' => 'enterprise_base', 'icon' => 'throbber')) . ' Loading tweets...</li></ul>' .
+        '<script type="text/javascript" src="http://api.twitter.com/1/statuses/user_timeline.json?screen_name=' . $twitter_account . '&include_entities=true&callback=socialTwitterList&count=' . $tweets_count . '"></script>',
+      );
+      break;
+    case 'enterprise_social_flickr':
+      if (!$flickr_id = variable_get('enterprise_social_flickr_id', '77715973@N03')) {
+        return;
+      }
+      $flickr_display = variable_get('enterprise_social_flickr_display', 'latest');
+      $flickr_count = variable_get('enterprise_social_flickr_photo_count', 6);
+      $block['title'] = t('Flickr Photos');
+      $block['content'] = array(
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'enterprise_social') . '/js/flickr.js' => array('scope' => 'footer'),
+          ),
+        ),
+        '#markup' => '<div id="social-flickr-list"><script type="text/javascript" src="http://www.flickr.com/badge_code_v2.gne?count=' . $flickr_count . '&display=' . $flickr_display . '&size=s&layout=x&source=user&user=' . $flickr_id . '"></script></div>',
+      );
+      break;
+  }
+  return $block;
+}

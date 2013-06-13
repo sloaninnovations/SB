@@ -1,0 +1,85 @@
+diff --git a/nopremium.install b/nopremium.install
+index 78a1171..a0a32d8 100644
+--- a/nopremium.install
++++ b/nopremium.install
+@@ -61,3 +61,20 @@ function nopremium_uninstall() {
+  */
+ function nopremium_update_6001() {
+ }
++
++/**
++ * Copy the display settings from the default 'Teaser' display mode to the new 'Premium teaser'
++ */
++function nopremium_update_7100() {
++  // Get all of the Node Types
++  foreach (node_type_get_names() as $type => $name) {
++    // Get all of instances and copy the settings from the 'teaser' display mode.
++    $instances = field_info_instances('node', $type);
++    foreach ($instances as $instance) {
++      if (!empty($instance['display']['teaser'])) {
++        $instance['display']['nopremium_teaser'] = $instance['display']['teaser'];
++        field_update_instance($instance);
++      }
++    }
++  }
++}
+\ No newline at end of file
+diff --git a/nopremium.module b/nopremium.module
+index ff742e0..4e6b4fb 100644
+--- a/nopremium.module
++++ b/nopremium.module
+@@ -265,11 +265,11 @@ function nopremium_access_full_content($node, $account = NULL) {
+ function nopremium_alter_node(&$build) {
+   $view_mode = $build['#view_mode'];
+ 
+-  if ($view_mode != 'teaser') {
++  if ($view_mode != 'teaser' && $view_mode != 'nopremium_teaser') {
+     $node = $build['#node'];
+     $langcode = $build['#language'];
+ 
+-    node_build_content($node, 'teaser', $langcode);
++    node_build_content($node, 'nopremium_teaser', $langcode);
+     unset($node->content['links']['node']['#links']['node-readmore']);
+     $node->content['nopremium_message'] = array(
+       '#markup' => theme('nopremium_message', array('node' => $node)),
+@@ -281,7 +281,7 @@ function nopremium_alter_node(&$build) {
+     $build += array(
+       '#theme' => 'node',
+       '#node' => $node,
+-      '#view_mode' => 'teaser',
++      '#view_mode' => 'nopremium_teaser',
+       '#language' => $langcode,
+     );
+ 
+@@ -292,7 +292,7 @@ function nopremium_alter_node(&$build) {
+     $type = 'node';
+     drupal_alter(array('node_view', 'entity_view'), $build, $type);
+ 
+-    $build['#view_mode'] = $view_mode;
++    $build['#view_mode'] = 'nopremium_teaser';
+   }
+ }
+ 
+@@ -311,3 +311,22 @@ function nopremium_get_message($type = '') {
+ 
+   return variable_get('nopremium_message', 'The full content of this page is available to premium users only.');
+ }
++
++/**
++* Implements hook_entity_info_alter().
++*/
++function nopremium_entity_info_alter(&$entity_info) {
++  $entity_info['node']['view modes']['nopremium_teaser'] = array(
++    'label' => t('Premium teaser'),
++    'custom settings' => TRUE,
++  );
++}
++
++/**
++* Implements hook_preprocess_HOOK().
++*/
++function nopremium_preprocess_node(&$variables) {
++  if($variables['view_mode'] == 'nopremium_teaser') {
++    $variables['theme_hook_suggestions'][] = 'node__' . $variables['type'] . '__nopremium_teaser';
++  }
++}

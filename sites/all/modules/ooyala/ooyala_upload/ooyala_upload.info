@@ -1,0 +1,17 @@
+name = Ooyala Uploader
+description = Allows uploading of videos to the <a href="http://www.ooyala.com">Ooyala</a> video service.
+core = 7.x
+php = 5.3
+package = Ooyala
+dependencies[] = ooyala
+dependencies[] = jquery_update
+dependencies[] = libraries
+dependencies[] = services
+
+
+; Information added by drupal.org packaging script on 2013-01-19
+version = "7.x-2.0-beta2"
+core = "7.x"
+project = "ooyala"
+datestamp = "1358558863"
+
