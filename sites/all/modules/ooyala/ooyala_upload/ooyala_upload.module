@@ -1,0 +1,213 @@
+<?php
+
+/**
+ * @file
+ * The Ooyala Upload module allows for content to be uploaded to the Ooyala
+ * backlot.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function ooyala_upload_enable() {
+  drupal_set_message(t('Enabling the rest_server module to allow the Ooyala Uploader to work.'));
+  module_enable(array("rest_server"));
+}
+
+/**
+ * Implements FAPI hook_element_info().
+ *
+ * Any FAPI callbacks needed for individual widgets can be declared here,
+ * and the element will be passed to those callbacks for processing.
+ *
+ * Drupal will automatically theme the element using a theme with
+ * the same name as the hook_elements key.
+ */
+function ooyala_upload_element_info() {
+  return array(
+    'ooyala_upload' => array(
+      '#input' => TRUE,
+      '#columns' => array('value', 'status', 'length'),
+      '#delta' => 0,
+      '#process' => array('ooyala_upload_element_process'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function ooyala_upload_field_widget_info() {
+  return array(
+    'ooyala_upload' => array(
+      'label' => t('Ooyala uploader'),
+      'field types' => array('ooyala'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function ooyala_upload_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $ooyala = new OoyalaDrupalWrapper();
+  $element += array(
+    '#title' => (empty($instance['label']) ? '' : t($instance['label'])),
+    '#type' => 'ooyala_upload',
+    '#default_value' => !empty($items[$delta]) ? $items[$delta] : array(),
+  );
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ooyala_upload_theme() {
+  $themes = array(
+    'ooyala_upload_element' => array(
+      'render element' => 'element',
+    ),
+  );
+
+  return $themes;
+}
+
+/**
+ * Theme the contents of the Ooyala upload field.
+ */
+function theme_ooyala_upload_element($variables) {
+  $element = $variables['element'];
+  $upload_field = '';
+  $upload_field .= '<div class="ooyala-upload-element">';
+  $upload_field .= '<span id="selectAsset"></span>';
+  $upload_field .= '<button id="upload">' . t('Upload') . '</button>';
+  $upload_field .= '<div id="progress-bar"></div>';
+  $upload_field .= '<div id="ooyala-message"></div>';
+  $upload_field .= '</div>';
+  $element['upload_field'] = array(
+    '#type' => 'markup',
+    '#markup' => $upload_field,
+    '#weight' => -9,
+  );
+  // Resort the children to place our element in the right place.
+  $element['#sorted'] = FALSE;
+  $key_order = element_children($element, TRUE);
+  return drupal_render_children($element, $key_order);
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function ooyala_upload_ctools_plugin_api($owner, $api) {
+  if ($owner == 'services' && $api == 'services') {
+    return array(
+      'version' => 3,
+      'file' => 'ooyala_upload.services.inc',
+      'path' => drupal_get_path('module', 'ooyala_upload') . '/includes',
+    );
+  }
+}
+
+/**
+ * Implements hook_services_resources().
+ */
+function ooyala_upload_services_resources() {
+  $asset_resource = array(
+    'assets' => array(
+      'create' => array(
+        'file' => array('type' => 'inc', 'module' => 'ooyala_upload', 'name' => 'resources/asset_resource'),
+        'callback' => 'ooyala_upload_asset_create',
+        'access arguments' => array('upload_ooyala_videos'),
+        'args' => array(
+          array(
+            'name' => 'asset',
+            'type' => 'array',
+            'description' => 'The asset object',
+            'source' => 'data',
+            'optional' => FALSE,
+          ),
+        )
+      ),
+      'update' => array(
+        'file' => array('type' => 'inc', 'module' => 'ooyala_upload', 'name' => 'resources/asset_resource'),
+        'callback' => 'ooyala_upload_asset_upload_complete',
+        'access arguments' => array('upload_ooyala_videos'),
+        'args' => array(
+          array(
+            'name' => 'embed_code',
+            'type' => 'string',
+            'description' => 'The embed code of the asset to update.',
+            'source' => array('path' => 0),
+            'optional' => FALSE,
+          ),
+          array(
+            'name' => 'asset',
+            'type' => 'array',
+            'description' => 'The asset object',
+            'source' => 'data',
+            'optional' => FALSE,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $asset_resource;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function ooyala_libraries_info() {
+  $libraries = array();
+
+  $libraries['ooyala-web-uploader'] = array(
+    'name' => 'Ooyala Web Uploader',
+    'vendor url' => 'https://github.com/ooyala/ooyala-web-uploader',
+    'download url' => 'https://github.com/ooyala/ooyala-web-uploader/tarball/master',
+    'files' => array(
+      'js' => array(
+        'ooyala.client.js',
+        'eventdispatcher.js',
+        'assetcreator.js',
+        'uploader.js',
+        'chunk-providers/html5provider.js',
+        'htmluploader.js',
+      ),
+    ),
+    'version' => 'master',
+  );
+
+  return $libraries;
+}
+
+/**
+ * #process callback for the ooyala_upload element. This calls the process
+ * function for ooyala_embed_code but adds the appropriate JavaScript to allow
+ * videos to be uploaded.
+ */
+function ooyala_upload_element_process($element, &$form_state, $form) {
+  // Try to load the library and check if that worked.
+  if (($library = libraries_load('ooyala-web-uploader')) && !empty($library['loaded'])) {
+    drupal_add_library('system', 'ui.progressbar');
+    drupal_add_js(drupal_get_path('module', 'ooyala_upload') . '/ooyala_upload.js', 'file');
+
+    $settings = array(
+      'ooyala' => array(
+        'endpoint' => url('api/ooyala'),
+      ),
+    );
+    drupal_add_js($settings, 'setting');
+  }
+  else {
+    return t('There was an error including the Ooyala web uploader library. Please ensure that the library is available.');
+  }
+
+  $element = ooyala_embed_code_process($element, $form_state, $form);
+  $element['#theme'] = 'ooyala_upload_element';
+  return $element;
+}

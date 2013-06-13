@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Code for the Enterprise Bios feature.
+ */
+
+include_once 'enterprise_bios.features.inc';
+
+function enterprise_bios_process_page(&$variables) {
+  if (!empty($variables['node']) && ($node = $variables['node']) && $node->type === 'enterprise_bio') {
+    $variables['title'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_ds_classes_alter().
+ * Provide the necessary classes for blog types.
+ */
+function enterprise_bios_ds_classes_alter(&$classes, $name) {
+  if ('ds_classes_regions' === $name) {
+    $classes['style-bio-full'] = t('Bio: Full');
+    $classes['style-bio-teaser'] = t('Bio: Teaser');
+    $classes['style-bio-mini'] = t('Bio: Mini');
+  }
+}

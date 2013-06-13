@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Implements hook_bakery_transmit().
+ */
+function sage_base_bakery_transmit($edit, $account, $category) {
+  $fields = array();
+  foreach ($edit as $key => $value) {
+    if (substr($key, 0, 6) == 'field_') {
+      $fields[$key] = $value;
+    }
+  }
+//  watchdog('bakery', 'transmit fields ' . serialize($fields));
+  return !empty($fields) ? array('fields' => $fields) : array();
+}
+
+/**
+ * Implements hook_bakery_receive().
+ */
+function sage_base_bakery_receive($account, $edit) {
+  $status = FALSE;
+//  watchdog('bakery', 'recieve fields ' . serialize($edit));
+  if (isset($edit['data']['fields'])) {
+    return user_save($account, $edit['data']['fields']);
+  }
+}

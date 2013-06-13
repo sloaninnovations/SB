@@ -1,0 +1,7 @@
+name = "Link Intelligence"
+description = "Automates linking of keyword in content to specified pages."
+package = SEO
+dependencies[] = kwresearch
+core = 7.x
+version = 7.x-0.1-beta
+configure = admin/config/search/linkintel

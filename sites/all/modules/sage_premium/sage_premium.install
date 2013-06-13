@@ -1,0 +1,55 @@
+<?php
+/**
+ * @file
+ * Written by Henri MEDOT <henri.medot[AT]absyx[DOT]fr>
+ * http://www.absyx.fr
+ */
+
+
+
+/**
+ * Implementation of hook_schema_alter().
+ */
+function sage_premium_schema_alter(&$schema) {
+  $schema['node']['fields']['premium_perm'] = array(
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+    'description' => 'Premium Permission',
+  );
+  $schema['node']['indexes']['node_premium_status'] = array('premium_perm', 'status');
+}
+
+
+
+/**
+ * Implementation of hook_install().
+ */
+function sage_premium_install() {
+  db_update('system')
+    ->fields(array('weight' => 11))
+    ->condition('name', 'sage_premium')
+    ->execute();
+  db_add_field('node', 'premium_perm', array(
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+    'description' => 'Premium Permission',
+  ), array(
+    'indexes' => array(
+      'sage_premium_status' => array('premium_perm', 'status'),
+  )));
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function sage_premium_uninstall() {
+  db_drop_index('node', 'sage_premium_status');
+  db_drop_field('node', 'premium_perm');
+  db_query("DELETE FROM {variable} WHERE name LIKE 'sage_premium_%%'");
+}

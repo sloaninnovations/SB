@@ -1,0 +1,87 @@
+<?php
+/**
+ * @file
+ * Installation and update functions for the block group module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function blockgroup_requirements($phase) {
+  $t = get_t();
+
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    if (($expected = blockgroup_fix_weight_required($current))) {
+      $requirements['blockgroup_weight'] = array(
+        'title' => $t('Block Group module weight'),
+        'description' => $t('The weight of the Block Group module should be increased from %current to %expected in order to ensure proper operation. Visit the <a href="!url">configuration page</a> and fix the module weight.', array('%current' => $current, '%expected' => $expected, '!url' => url('admin/config/system/blockgroup'))),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('Module weight is %current instead of %expected', array('%current' => $current, '%expected' => $expected)),
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_enable().
+ *
+ * Fix weight of blockgroup module if necessary.
+ */
+function blockgroup_enable() {
+  if (($weight = blockgroup_fix_weight_required())) {
+    blockgroup_fix_weight($weight);
+  }
+}
+
+
+/**
+ * Fix weight for blockgroup module.
+ */
+function blockgroup_update_7000() {
+  $t = get_t();
+
+  if (($weight = blockgroup_fix_weight_required())) {
+    blockgroup_fix_weight($weight);
+
+    return $t("Increased weight of blockgroup module. New weight is %weight.",
+      array('%weight' => $weight));
+  }
+  else {
+    return $t("Increasing weight of blockgroup module was not necessary.");
+  }
+}
+
+
+/**
+ * Return the recommended weight if fixing the weight of blockgroup module is
+ * necessary. Otherwise return false.
+ */
+function blockgroup_fix_weight_required(&$current = NULL) {
+  $modules = module_implements("block_list_alter");
+  $weights = db_select('system')
+    ->fields('system', array('name', 'weight'))
+    ->condition('name', $modules)
+    ->execute()
+    ->fetchAllKeyed();
+
+  $current = $weights['blockgroup'];
+  unset($weights['blockgroup']);
+  $expected = max($weights) + 1;
+
+  return ($current < $expected) ? $expected : FALSE;
+}
+
+/**
+ * Raise weight for blockgroup module to 1+max of hook_block_list_alter implementors.
+ */
+function blockgroup_fix_weight($new_weight) {
+  db_update('system')
+    ->fields(array('weight' => $new_weight))
+    ->condition('type', 'module')
+    ->condition('name', 'blockgroup')
+    ->execute();
+}

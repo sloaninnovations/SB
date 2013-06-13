@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Installation and update functions for the Ooyala taxonomy module.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function ooyala_taxonomy_schema() {
+  $schema = array();
+
+  $schema['ooyala_taxonomy'] = array(
+    'description' => 'Table for storing Ooyala label to Drupal term ID pairs',
+    'fields' => array(
+      'vid' => array(
+        'description' => 'Foreign key to the vid of the {vocabulary} table.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tid' => array(
+        'description' => 'Foreign key to the tid of the {term_data} table.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'olid' => array(
+        'description' => 'The label ID provided by Ooyala',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'updated' => array(
+        'description' => 'The last time that the matching Drupal term was updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('vid', 'tid', 'olid'),
+    'indexes' => array(
+      'updated' => array('updated'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ooyala_taxonomy_uninstall() {
+  variable_del('ooyala_taxonomy');
+  variable_del('ooyala_taxonomy_current');
+}

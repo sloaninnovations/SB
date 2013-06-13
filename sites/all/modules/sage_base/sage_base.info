@@ -1,0 +1,9 @@
+name = Sage Base
+description = Base Install for all Sage sites.
+core = 7.x
+package = Sage
+dependencies[] = bakery
+dependencies[] = enterprise_user
+dependencies[] = enterprise_base
+dependencies[] = sage_roles
+dependencies[] = sage_premium

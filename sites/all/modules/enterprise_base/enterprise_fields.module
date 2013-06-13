@@ -1,0 +1,165 @@
+<?php
+
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function enterprise_fields_ds_fields_info($entity_type) {
+  $node = array();
+  $user = array();
+  $user['user_thumbnail'] = array(
+    'title' => t('User Thumbnail'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'ui_limit' => array('*|*'),
+    'function' => 'enterprise_fields_user_thumbnail',
+    'properties' => array(),
+  );
+  $node['unpublished'] = array(
+    'title' => t('Unpublished Banner'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'ui_limit' => array('*|*'),
+    'function' => 'enterprise_fields_unpublished',
+    'properties' => array(),
+  );
+  $node['submit_info'] = array(
+    'title' => t('Submit Info (Date, Author)'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'ui_limit' => array('*|*'),
+    'function' => 'enterprise_fields_submit_info',
+    'properties' => array(),
+  );
+  if (module_exists('enterprise_user')) {
+    $node['about_author'] = $user['about_author'] = array(
+      'title' => t('About Author'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'ui_limit' => array('*|*'),
+      'function' => 'enterprise_fields_about_author',
+      'properties' => array(),
+    );    
+    $user['blog_author'] = array(
+      'title' => t('Blog Author'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'ui_limit' => array('*|*'),
+      'function' => 'enterprise_fields_blog_author',
+      'properties' => array(),
+    );    
+  }
+  if (module_exists('prev_next')) {
+    $node['prev_next_node'] = array(
+      'title' => t('Prev/Next Node'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'ul_limit' => array('*|*'),
+      'function' => 'enterprise_fields_prev_next_node',
+      'properties' => array(),
+      'direction' => 'next',
+    );
+  }
+  if (module_exists('comment')) {
+    $node['comment_count'] = array(
+      'title' => t('Comment Count'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'ui_limit' => array('*|*'),
+      'function' => 'enterprise_fields_comment_count',
+      'properties' => array(),
+    );
+  }
+  return array('node' => $node, 'user' => $user);
+}
+
+function enterprise_fields_user_thumbnail($variables) {
+  $entity = $variables['entity'];
+  $account = user_load($entity->uid);
+  $picture_field = 'field_picture_thumbnail';
+  if (isset($user->field_picture_thumbnail['und'][0]['is_default']) && $account->field_picture_thumbnail['und'][0]['is_default']) {
+    if (!isset($user->field_enterprise_fields_picture['und'][0]['is_default']) || !$account->field_enterprise_fields_picture['und'][0]['is_default']) {
+      $picture_field = 'field_enterprise_fields_picture';
+    }
+  }
+  $photo = field_view_field('user', $account, $picture_field, array('label' => 'hidden', 'settings' => array('image_style' => '150x75')));
+  if ($photo) {
+    return drupal_render($photo);
+  }
+}
+
+function enterprise_fields_about_author($variables) {
+  if (module_exists('enterprise_user')) {
+    $entity = $variables['entity'];
+    $account = user_load($entity->uid);
+    $view_mode = 'user_about'; // This view mode is in enterprise_user.
+    $output = l('About the Author', 'user/' . $entity->uid, array('attributes' => array('class' => array('name'))));
+    $user_view = user_view($account, $view_mode);
+    $output .= drupal_render($user_view);
+    return $output;
+  }
+}
+
+function enterprise_fields_blog_author($variables) {
+  if (module_exists('enterprise_user')) {
+    $entity = $variables['entity'];
+    $name = ($entity->realname?$entity->realname:$entity->name);
+    $output = l($name, 'resources/blog/' . enterprise_base_create_machine_name($name, '-'), array('attributes' => array('class' => array('name'))));
+    return $output;
+  }
+}
+
+function enterprise_fields_unpublished($variables) {
+  $entity = $variables['entity'];
+  if (!$entity->status) {
+    return '<span class="style-unpublished"><span class="line"></span><span class="text">Unpublished</span></span>';
+  }
+}
+
+/**
+ * Field callback for submit_info
+ * 
+ * @param type $variables
+ * @return type
+ */
+function enterprise_fields_submit_info($variables) {
+  $entity = $variables['entity'];
+  $user = user_load($entity->uid);
+  return '<div class="submit_info">' . format_date($entity->created, 'custom', 'F j, Y') . t(' by ') . theme('username', array('account' => $user)) . '</div>';
+}
+
+/**
+ * Field callback for previous/next buttons
+ * 
+ * @param type $variables
+ * @return type
+ */
+function enterprise_fields_prev_next_node($variables) {
+  if (module_exists('prev_next')) {
+    $entity = $variables['entity'];
+    $next = prev_next_nid($entity->nid, 'next');
+    $prev = prev_next_nid($entity->nid, 'prev');
+    if (!empty($next) || !empty($prev)) {
+      $output = '';
+      if (!empty($next) && !empty($prev)) {
+        return l(t('Next') . theme('icon', array('bundle' => 'enterprise_base', 'icon' => 'oeicon-right-open-big')) . '<span class="arrow"></span>', 'node/' . $next, array('html' => TRUE, 'attributes' => array('class' => array('btn', 'btn-primary', 'next')))) . l(theme('icon', array('bundle' => 'enterprise_base', 'icon' => 'oeicon-left-open-big')), 'node/' . $prev, array('html' => TRUE, 'attributes' => array('class' => array('btn', 'btn-primary', 'prev', 'small'))));
+      }
+      elseif (!empty($next)) {
+        return l(t('Next') . theme('icon', array('bundle' => 'enterprise_base', 'icon' => 'oeicon-right-open-big')), 'node/' . $next, array('html' => TRUE, 'attributes' => array('class' => array('btn', 'btn-primary', 'next'))));
+      }
+      elseif (!empty($prev)) {
+        return l(theme('icon', array('bundle' => 'enterprise_base', 'icon' => 'oeicon-left-open-big')) . t('Previous'), 'node/' . $prev, array('html' => TRUE, 'attributes' => array('class' => array('btn', 'btn-primary', 'prev'))));
+      }
+    }
+  }
+}
+
+/**
+ * Field callback for meta_info
+ * 
+ * @param type $variables
+ * @return type
+ */
+function enterprise_fields_comment_count($variables) {
+  if (module_exists('comment')) {
+    $entity = $variables['entity'];
+    if ($entity->comment) {
+      $items[] = l(format_plural($entity->comment_count, 'Comment (1)', 'Comments (@count)'), 'node/' . $entity->nid, array('fragment' => 'comments'));
+    }
+    return theme('item_list', array('items' => $items, 'attributes' => array('class' => array('meta-info'))));
+  }
+}
+

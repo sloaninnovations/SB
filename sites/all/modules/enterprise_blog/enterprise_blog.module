@@ -1,0 +1,145 @@
+<?php
+/**
+ * @file
+ * Code for the Blog App feature.
+ */
+
+include_once('enterprise_blog.features.inc');
+
+/**
+ * Implements hook_views_data_alter()
+ */
+function enterprise_blog_views_data_alter(&$data) {
+  // Add an additional option for published field
+  $data['node']['status']['field']['output formats']['draft'] = array('', 'Draft');
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function enterprise_blog_preprocess_field(&$variables) {
+  if ($variables['element']['#field_name'] === 'field_blog_tags') {
+    $variables['label'] = '<i class="icon-tags"></i>';
+    $variables['classes_array'][] = 'tags';
+  }
+}
+
+/**
+ * Implements hook_preprocess_comment()
+ */
+function enterprise_blog_preprocess_comment(&$variables) {
+  $account = user_load($variables['user']->uid);
+  // Add author picture
+  if (isset($account->field_enterprise_blog_picture[(($account->language)?$account->language:'und')][0])) {
+    $settings = array(
+      'style_name' => 'enterprise_blog_thumbnail',
+      'path' => $account->field_enterprise_blog_picture[(($account->language)?$account->language:'und')][0]['uri'],
+      'attributes' => array(
+        'alt' => $account->name,
+        'title' => $account->name,
+      ),
+    );
+    $variables['picture'] = theme('image_style', array($settings));
+  }
+}
+
+function enterprise_blog_enterprise_base_apps_structures() {
+  $structures = array();
+  $structures['enterprise_blog'] = array(
+    'title' => t('Blog'),
+  );
+  $visibility = array(
+    'enterprise_blog_view' => array(
+      'title' => t('Show on blog post listing pages'),
+      'views' => array(
+        'views' => array('enterprise_blog:page'),
+      ),
+    ),
+    'enterprise_blog_content_type' => array(
+      'title' => t('Show on blog post pages'),
+      'node_type' => array(
+        'types' => array('enterprise_blog'),
+      )
+    ),
+  );
+  $view = views_get_view('enterprise_blog');
+  $desc_block = isset($view->display['block']->display_options['display_description']) ? $view->display['block']->display_options['display_description'] : '';
+  $desc_similar = isset($view->display['similar_block']->display_options['display_description']) ? $view->display['similar_block']->display_options['display_description'] : '';
+  $desc_archive = isset($view->display['archive_block']->display_options['display_description']) ? $view->display['archive_block']->display_options['display_description'] : '';
+  $desc_authors = isset($view->display['authors_block']->display_options['display_description']) ? $view->display['authors_block']->display_options['display_description'] : '';
+  $desc_categories = isset($view->display['categories_block']->display_options['display_description']) ? $view->display['categories_block']->display_options['display_description'] : '';
+  $desc_tags = isset($view->display['tags_block']->display_options['display_description']) ? $view->display['tags_block']->display_options['display_description'] : '';
+    
+  $structures['enterprise_blog']['blocks'] = array(
+    'views:enterprise_blog-block' => array(
+      'description' => $desc_block,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_content_type'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 1,
+    ),
+    'views:enterprise_blog-similar_block' => array(
+      'description' => $desc_similar,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_content_type'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 2,
+    ),
+    'views:enterprise_blog-authors_block' => array(
+      'description' => $desc_authors,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_view'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 3,
+    ),
+    'views:enterprise_blog-categories_block' => array(
+      'description' => $desc_categories,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_view'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 4,
+    ),
+    'views:enterprise_blog-tags_block' => array(
+      'description' => $desc_tags,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_view'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 5,
+    ),
+    'views:enterprise_blog-archive_block' => array(
+      'description' => $desc_archive,
+      'defaults' => array(
+        'regions' => array('sidebar_second'),
+        'visibility' => array('enterprise_blog_view'),
+      ),
+      'visibility' => $visibility,
+      'weight' => 6,
+    ),
+    /**/
+  );
+  return $structures;   
+}
+
+/**
+ * Implements hook_ds_classes_alter().
+ * Provide the necessary classes for blog types.
+ */
+function enterprise_blog_ds_classes_alter(&$classes, $name) {
+  if ('ds_classes_regions' === $name) {
+    $classes['style-blog-full'] = t('Blog: Full');
+    $classes['style-blog-featured'] = t('Blog: Featured');
+    $classes['style-blog-teaser'] = t('Blog: Teaser');
+    $classes['style-blog-mini'] = t('Blog: Mini');
+    $classes['style-blog-related'] = t('Blog: Related');
+  }
+}

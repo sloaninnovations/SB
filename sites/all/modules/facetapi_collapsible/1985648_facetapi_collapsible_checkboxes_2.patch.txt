@@ -1,0 +1,68 @@
+diff --git a/collapsible_widget.inc b/collapsible_widget.inc
+index 52bdd13..83950eb 100644
+--- a/collapsible_widget.inc
++++ b/collapsible_widget.inc
+@@ -89,3 +89,36 @@ class FacetapiCollapsible extends FacetapiWidgetLinks {
+     );
+   }
+ }
++
++/**
++ * Widget that renders facets as a list of collapsible clickable checkboxes.
++ */
++class FacetapiCollapsibleCheckboxes extends FacetapiCollapsible {
++
++  /**
++   * Overrides FacetapiWidgetLinks::init().
++   *
++   * Adds additional JavaScript settings and CSS.
++   */
++  public function init() {
++    parent::init();
++    $this->jsSettings['makeCheckboxes'] = 1;
++    drupal_add_css(drupal_get_path('module', 'facetapi') . '/facetapi.css');
++  }
++
++/**
++ * Adds a settings form to our class.
++ */
++  function settingsForm(&$form, &$form_state) {
++    parent::settingsForm($form, $form_state);
++  }
++
++  /*
++   * Overrides FacetapiWidgetLinks::getItemClasses().
++   *
++   * Sets the base class for checkbox facet items.
++   */
++  public function getItemClasses() {
++    return array('facetapi-checkbox');
++  }
++}
+diff --git a/facetapi_collapsible.module b/facetapi_collapsible.module
+index 999b3fe..1ab004b 100644
+--- a/facetapi_collapsible.module
++++ b/facetapi_collapsible.module
+@@ -12,6 +12,13 @@ function facetapi_collapsible_facetapi_widgets() {
+         'query types' => array('term', 'date'),
+       ),
+     ),
++    'collapsible_checkboxes' => array(
++      'handler' => array(
++        'label' => t('Collapsible Links with Checkboxes'),
++        'class' => 'FacetapiCollapsibleCheckboxes',
++        'query types' => array('term', 'date'),
++      ),
++    ),
+   );
+ }
+ 
+@@ -55,7 +62,7 @@ function facetapi_collapsible_facetapi_link_active($variables) {
+ function facetapi_collapsible_block_view_alter($data, $block) {
+   if (isset($data['content']['#facet'])) {
+     $settings = $data['content']['#settings'];
+-    if (is_object($settings) && isset($settings->settings) && $settings->settings['widget'] == 'collapsible') {
++    if (is_object($settings) && isset($settings->settings) && ($settings->settings['widget'] == 'collapsible' || $settings->settings['widget'] == 'collapsible_checkboxes')) {
+       facetapi_collapsible_static($block->delta);
+     }
+   }
