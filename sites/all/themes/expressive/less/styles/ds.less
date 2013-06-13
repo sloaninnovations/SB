@@ -1,0 +1,118 @@
+.ds-header {
+  .inline-block();
+  width: 100%;
+  .meta-info {
+    .inline-block();
+    line-height: 1em;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    li {
+      border-right: 1px solid @styleColor1;
+      .inline-block();
+      float: left;
+      line-height: 1em;
+      list-style: none;
+      list-style-image: none;
+      margin: 0 10px 0 0;
+      padding-right: 10px;
+      &.first {
+        padding-left: 0;
+      }
+      &.last {
+        border-right: 0 none;
+        margin-right: 0;
+        padding-right: 0;
+      }
+    }
+    @media @mobile {
+      li {
+        margin-right: 5px;
+        padding-right: 5px;
+        &.last {
+          margin-right: 0;
+          padding-right: 0;
+        }
+      }
+    }
+  }
+  .ds-sticky {
+    background: @bodyBackground;
+    border-bottom: 1px solid @grayLighter;
+    border-top: 1px solid @grayLighter;
+    .box-sizing(border-box);
+    .inline-block();
+    padding: 10px 0;
+    width: 100%;
+    h2 {
+      font-family: @sansFontFamily;
+      .font-size(1.6);
+      font-weight: 400;
+      line-height: 1em;
+      text-transform: none;
+      margin: 0 0 5px;
+      float: left;
+      @media @mobile {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+        width: 100% !important;
+      }
+    }
+    .meta-info {
+      float: left;
+      margin: 0 0 5px;
+      float: right;
+      @media @mobile {
+        width: auto;
+      }
+    }
+    h2, .meta-info {
+      display: none;
+      @media @mobile {
+        float: none;
+      }
+    }
+    .style-social-media {
+      clear: both;
+      float: left;
+    }
+    &.affix {
+      h2, .meta-info {
+        .inline-block();
+        width: auto;
+        @media @mobile {
+          margin: 0;
+        }
+      }
+      border-top-color: @white;
+      .box-shadow(0 10px 10px -10px rgba(0, 0, 0, 0.2));
+      margin-left: -1px;
+      padding-left: 1px;
+      @media @mobile {
+        left: inherit !important;
+      }
+      &.bottom {
+        @media @mobile {
+          border-bottom-color: @white;
+          border-top-color: @grayLighter;
+          .box-shadow(0 -10px 10px -10px rgba(0, 0, 0, 0.2));
+        }
+      }
+    }
+  }
+  .field-name-submit-info {
+    float: left;
+    margin-bottom: 5px;
+  }
+  .field-name-comment-count {
+    border-left: 1px solid @grayLighter;
+    float: left;
+    margin-bottom: 5px;
+    margin-left: 10px;
+    padding-left: 10px;
+  }
+}
+.ds-footer {
+  margin-top: 1em;
+}

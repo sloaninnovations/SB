@@ -1,0 +1,115 @@
+.style-industry-icons {
+  @industryColor1: @styleColor2;
+  @industryColor2: @styleColor3;
+  text-align: center;
+  .views-column {
+    height: 200px;
+    @media @normal {
+      height: 160px;
+    }
+    @media @tablet {
+      height: 120px;
+    }
+    @media @mobile {
+      height: auto;
+    }
+  }
+  @media @mobile {
+    text-align: left;
+    .views-row {
+      margin-bottom: 0;
+    }
+  }
+  .node {
+    background: @industryColor1;
+    .box-sizing(border-box);
+    cursor: pointer;
+    height: 100%;
+    padding: 1em;
+    position: relative;
+    width: 100%;
+    &, a {
+      color: @white;
+    }
+    &:hover {
+      background: @industryColor2;
+      &, a {
+        color: @industryColor1;
+      }
+    }
+    .icon {
+      bottom: 0;
+      display: block;
+      .font-size(12);
+      left: 0;
+      line-height: 1.25em;
+      position: absolute;
+      right: 0;
+      top: 0;
+      &:before {
+        width: auto;
+      }
+      @media @normal {
+        .font-size(8);
+      }
+      @media @tablet {
+        .font-size(6);
+      }
+      @media @mobile {
+        position: static;
+        float: left;
+        margin: -0.35em 0.5em -0.35em 0;
+        .font-size(3);
+      }
+    }
+    .field-name-title .field-item {
+      display: table;
+      width: 100%;
+      @media @mobile {
+        display: block;
+      }
+    }
+    h2 {
+      display: table-cell;
+      .font-size(1.8);
+      height: 45px;
+      line-height: 1.25em;
+      padding-top: 130px;
+      vertical-align: middle;
+      width: 100%;
+      @media @normal {
+        .font-size(1.6);
+        padding-top: 90px;
+      }
+      @media @tablet {
+        .font-size(1.4);
+        height: 35px;
+        padding-top: 60px;
+      }
+      @media @mobile {
+        display: block;
+        .font-size(1.4);
+        margin: 0;
+        height: auto;
+        overflow: hidden;
+        padding-top: 0;
+        width: auto;
+      }
+    }
+  }
+}
+.style-story-info {
+  .box-sizing(border-box);
+  background: @styleColor3;
+  border: 1px solid @styleColor3;
+  border-color: fadeout(@styleColor2, 75%);
+  color: @styleColor2;
+  float: left;
+  padding: 1em 1em 0;
+  width: 100%;
+  .field-group-div {
+    float: left;
+    padding: 0 0 1em;
+    width: 100%;
+  }
+}
