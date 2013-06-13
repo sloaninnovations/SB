@@ -1,5 +1,0 @@
-name = Enterprise Fields
-description = Provides basic field information for entities.
-core = 7.x
-version = 7.x-2.x
-package = Open Enterprise

@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Enterprise Product feature.
- */
-
-include_once 'enterprise_product.features.inc';

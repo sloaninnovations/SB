@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Image feature.
- */
-
-include_once 'enterprise_block.features.inc';

@@ -1,7 +1,0 @@
-name = Sage Premium
-description = Premium settings for the sage site.
-core = 7.x
-package = Sage
-dependencies[] = nopremium
-dependencies[] = override_node_options
-dependencies[] = sage_roles

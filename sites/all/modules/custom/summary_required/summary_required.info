@@ -1,4 +1,0 @@
-name = Summary Required
-description = Makes the summary field visible by default and required.
-package = User Interface
-core = 7.x

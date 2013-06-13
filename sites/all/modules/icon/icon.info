@@ -1,9 +1,0 @@
-name = Icon API
-description = Implements an API for icon providers and administrative UI for integrating icons through out the site.
-core = 7.x
-package = Icon API
-configure = admin/config/media/icons
-
-files[] = icon.install
-files[] = icon.module
-files[] = icon.admin.inc
